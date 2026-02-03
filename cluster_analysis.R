@@ -10,7 +10,8 @@ library(pheatmap)
 
 # Data preparation ----
 # Load data. 
-data_raw <- read_csv("urban_eco_lit_coding.csv", skip = 2, col_names = FALSE)
+data_raw <- 
+  read_csv("data_raw/urban_eco_lit_coding.csv", skip = 2, col_names = FALSE)
 
 # Extract scenario metadata
 scenario_metadata <- data_raw %>%
@@ -54,7 +55,7 @@ clusters <- cutree(hc_result, k = k)
 
 # Visualizations ----
 # Save Dendrogram
-png("scenario_dendrogram.png", width = 1600, height = 800)
+png("data_proc/scenario_dendrogram.png", width = 1600, height = 800)
 plot(hc_result, main = "Dendrogram of Scenarios",
      xlab = "Scenarios", ylab = "Distance",
      labels = scenario_metadata$Scenario_Code[hc_result$order])
@@ -67,7 +68,10 @@ annotation_row <- data.frame(Cluster = factor(clusters))
 rownames(annotation_row) <- rownames(features_matrix)
 
 # Save the Scenario x Feature heatmap
-png("scenario_feature_heatmap.png", width = 1500, height = 2000, res = 200)
+png(
+  "data_proc/scenario_feature_heatmap.png", 
+  width = 1500, height = 2000, res = 200
+)
 pheatmap(
   features_matrix,
   color = c("#FFFFFF", "#336699"), # White for 0, Blue for 1
@@ -98,7 +102,10 @@ cluster_freq_matrix <- features_matrix %>%
 rownames(cluster_freq_matrix) <- paste("Cluster", 1:k)
 
 # Save the Cluster x Feature Frequency heatmap
-png("cluster_frequency_heatmap.png", width = 2500, height = 1300, res = 200)
+png(
+  "data_proc/cluster_frequency_heatmap.png", 
+  width = 2500, height = 1300, res = 200
+)
 pheatmap(
   cluster_freq_matrix,
   color = colorRampPalette(c("white", "steelblue"))(50),
