@@ -48,14 +48,22 @@ stopifnot(
 )
 assignments <- assignments[match(rownames(X), assignments$scenario_id), ]
 
-cluster_colours <- c(
-  "1" = "#2077BE",
-  "2" = "#3093B1",
-  "3" = "#27A0A6",
-  "4" = "#6DB73F",
-  "5" = "#3C9E39",
-  "6" = "#2E782C"
+# The published k=5 figure uses the first five of these exact values, so they
+# are kept verbatim for any k up to six. Beyond that a ramp is interpolated
+# across the same blue-to-green range, which keeps seven or more blocks
+# distinguishable instead of crowding three near-identical greens at the end.
+default_cluster_colours <- c(
+  "#2077BE", "#3093B1", "#27A0A6", "#6DB73F", "#3C9E39", "#2E782C"
 )
+cluster_colours <- if (number_of_clusters <= length(default_cluster_colours)) {
+  setNames(default_cluster_colours[seq_len(number_of_clusters)],
+           seq_len(number_of_clusters))
+} else {
+  setNames(
+    colorRampPalette(c("#2077BE", "#27A0A6", "#6DB73F", "#2E782C"))(number_of_clusters),
+    seq_len(number_of_clusters)
+  )
+}
 zero_colour <- "#F5F1E8"
 grid_colour <- "#AEB4B2"
 
