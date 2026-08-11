@@ -30,11 +30,20 @@ number_of_clusters <- as.integer(Sys.getenv("SCENARIO_K", unset = "5"))
 
 # A category counts as a "signature" of an archetype when it is both common
 # within the archetype and disproportionately concentrated there.
+# Thresholds follow collaborator_full_pipeline_k5.R so the two pipelines mark
+# the same categories. The absolute-difference term matters: without it a
+# prevalence floor alone drops categories that are rare corpus-wide but highly
+# concentrated in one archetype (at k=7, coastal-marine has lift 6.0 yet only
+# 20% prevalence). At k=5 this rule and a plain prevalence/lift pair agree on
+# all 190 cluster-category cells.
 signature_min_prevalence <- as.numeric(
-  Sys.getenv("SCENARIO_SIGNATURE_MIN_PREVALENCE", unset = "0.25")
+  Sys.getenv("SCENARIO_SIGNATURE_MIN_PREVALENCE", unset = "0.20")
+)
+signature_min_difference <- as.numeric(
+  Sys.getenv("SCENARIO_SIGNATURE_MIN_DIFFERENCE", unset = "0.10")
 )
 signature_min_lift <- as.numeric(
-  Sys.getenv("SCENARIO_SIGNATURE_MIN_LIFT", unset = "1.5")
+  Sys.getenv("SCENARIO_SIGNATURE_MIN_LIFT", unset = "1.35")
 )
 
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -188,6 +197,7 @@ profiles <- do.call(rbind, lapply(seq_len(number_of_clusters), function(cl) {
   prevalence <- colMeans(member)
   lift <- ifelse(overall_prevalence > 0, prevalence / overall_prevalence, 0)
   signature <- prevalence >= signature_min_prevalence &
+    (prevalence - overall_prevalence) >= signature_min_difference &
     lift >= signature_min_lift
   # Never let an archetype end up with no signature at all: fall back to the
   # three most over-represented categories that actually occur in it.
